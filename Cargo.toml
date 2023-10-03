@@ -1,0 +1,25 @@
+[package]
+name = "nova-examples"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nova-snark = { git = "https://github.com/lurk-lab/Nova.git", branch = "dev" }
+pasta_curves = { git = "https://github.com/lurk-lab/pasta_curves", branch = "dev", features = [
+  "repr-c",
+  "serde",
+] }
+neptune = { git = "https://github.com/lurk-lab/neptune", branch = "dev", default-features = false }
+bellpepper-core = { git = "https://github.com/lurk-lab/bellpepper", branch = "dev", default-features = false }
+bellpepper = { git = "https://github.com/lurk-lab/bellpepper", branch = "dev", default-features = false }
+ff = { version = "0.13.0", features = ["derive"] }
+num-bigint = { version = "0.4", features = ["serde", "rand"] }
+flate2 = "1.0"
+bincode = "1.3"
+generic-array = "0.14.4"
+
+# This is needed to ensure halo2curves, which imports pasta-curves, uses the *same* traits in bn256_grumpkin
+[patch.crates-io]
+pasta_curves = { git = "https://github.com/lurk-lab/pasta_curves", branch = "dev" }
