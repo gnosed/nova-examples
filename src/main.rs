@@ -14,11 +14,17 @@ use nova_snark::{
 };
 use std::{marker::PhantomData, time::Instant};
 
+/// `HashStepCircuit` is a struct that represents a step in a hash function recursive circuit.
 #[derive(Clone, Debug)]
 struct HashStepCircuit<F: PrimeField> {
     _marker: PhantomData<F>,
 }
 
+/// Implementation of the `StepCircuit` trait for `HashStepCircuit`.
+///
+/// Given `v_1`, `v_t` and a number of steps `t` as the initial inputs
+/// We define the step circuit v_{t+1} = H(t || v_t) where t starts at 1
+/// The circuit receives the input vector z0 = [v_1, v_t, t] and outputs res = [v_1, v_{t+1}, t+1]
 impl<F> StepCircuit<F> for HashStepCircuit<F>
 where
     F: PrimeField,
@@ -33,8 +39,8 @@ where
         z: &[AllocatedNum<F>],
     ) -> Result<Vec<AllocatedNum<F>>, SynthesisError> {
         // Use the inputs
-        // The initial value `v_0` needs to be present at each step
-        let v_0 = z[0].clone();
+        // The initial value `v_1` needs to be present at each step
+        let v_1 = z[0].clone();
         let v_t = z[1].clone();
         let t = z[2].clone();
 
@@ -80,7 +86,7 @@ where
         cs.enforce(
             || "v_0 == v_t when t is base case",
             |lc| lc + b.get_variable(),
-            |lc| lc + v_0.get_variable() - v_t.get_variable(),
+            |lc| lc + v_1.get_variable() - v_t.get_variable(),
             |lc| lc,
         );
         // Increase counter `t` by 1 at each step
@@ -91,7 +97,7 @@ where
             |lc| lc + t_plus_1.get_variable(),
         );
 
-        Ok(vec![v_0.clone(), v_t_plus_1.clone(), t_plus_1.clone()])
+        Ok(vec![v_1.clone(), v_t_plus_1.clone(), t_plus_1.clone()])
     }
 }
 
